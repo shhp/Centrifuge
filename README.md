@@ -1,2 +1,107 @@
-# Centrifuge
-A tool which can extract code snippets in Android projects.
+# When to use
+Launch performance is one of the key issues in developing an Android app. If several developers are collaboratively developing an Android app, anyone is likely to push a commit which influence the launch performance unintentionally. For example, Bob just added a statement in the method `whatever` of class `SomeClass`. However, `whatever` is invoked in `onCreate` of the `MainActivity`, thus such change may influence the launch performance. Bob just pushed the commit without realizing the underlying influence. So the problem is how can the team memebers know whether a commit may influence the launch performance or not.
+
+**Centrifuge** is aimed to solve the problem. It utilizes **java annotation** and **annotation processor tool** to extract code snippets which you are concerned about into a single file. By adding that file to git, you can track all the changes within the important code snippets.
+
+# How to use
+1. Add these dependencies to your app's `build.gradle`:
+
+  ```
+  compile 'com.shhp.centrifuge:centrifuge-annotation:1.0.0'
+  apt 'com.shhp.centrifuge:centrifuge-annotation-processor:1.0.0'
+  ```
+
+2. Use the annotation `Centrifuge` to annotate `class`, `constructor` or `method` you are concerned about. When `Centrifuge` is used to annotate `class`, all the static blocks within that `class` will be extracted. And when `Centrifuge` is used to annotate `constructor` or `method`, the method body will be extracted.
+
+3. Build your project and all the code snippets will be extracted into a file located in `{module}/build/generated/source/apt/{productFlavor}/{buildType}/centrifuge/Centrifuge`. There may be several items in the file, each item is in the form of
+
+  ```
+  // {identifier}
+  {content}
+  ```
+  
+  When the item is associated with a `class`, the `identifier` is the full name of the class including package name. When the item is associated with a `method`, the `identifier` is in the form of *{full name of the class}#{method name}({parameters})*. When the item is associated with a `constructor`, the `identifier` is in the form of *{full name of the class}#&lt;init&gt;({parameters})*. 
+  
+4. Include the generated file in version control by adding these lines to your project's `.gitignore`:
+
+  ```
+  /app/build/*
+!/app/build/generated/
+/app/build/generated/*
+!/app/build/generated/source/
+/app/build/generated/source/*
+!/app/build/generated/source/apt/
+/app/build/generated/source/apt/*
+!/app/build/generated/source/apt/debug/
+/app/build/generated/source/apt/debug/*
+!/app/build/generated/source/apt/debug/Centrifuge/
+  ```
+  
+#Example
+
+```
+@Centrifuge
+public class SampleActivity extends AppCompatActivity {
+
+    static {
+        Log.i("Test", "This is a static block.");
+    }
+
+    @Override
+    @Centrifuge
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_sample);
+    }
+
+    static class TestClass {
+
+        @Centrifuge
+        public TestClass() {
+            Log.i("Test", "This is the constructor of TestClass.");
+        }
+    }
+}
+```
+
+The generated file is:
+
+```
+// com.shhp.centrifuge.SampleActivity
+static {
+    Log.i("Test", "This is a static block.");
+}
+
+
+
+// com.shhp.centrifuge.SampleActivity.TestClass#<init>()
+{
+    Log.i("Test", "This is the constructor of TestClass.");
+}
+
+// com.shhp.centrifuge.SampleActivity#onCreate(android.os.Bundle savedInstanceState,)
+{
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_sample);
+}
+
+
+```
+
+#License
+
+```
+Copyright 2017 shhp
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+```
