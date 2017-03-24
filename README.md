@@ -7,13 +7,24 @@ Launch performance is one of the key issues in developing an Android app. If sev
 1. Add these dependencies to your app's `build.gradle`:
 
   ```
-  compile 'com.shhp.centrifuge:centrifuge-annotation:1.0.0'
-  apt 'com.shhp.centrifuge:centrifuge-annotation-processor:1.0.0'
+  compile 'com.shhp.centrifuge:centrifuge-annotation:2.0.2'
+  apt 'com.shhp.centrifuge:centrifuge-annotation-processor:2.0.2'
   ```
+  
+2. Use the annotation `CodeExtractor` to annotate your custom annotations. e.g.
 
-2. Use the annotation `Centrifuge` to annotate `class`, `constructor` or `method` you are concerned about. When `Centrifuge` is used to annotate `class`, all the static blocks within that `class` will be extracted. And when `Centrifuge` is used to annotate `constructor` or `method`, the method body will be extracted.
+  ```
+  @Documented
+  @Target({ElementType.METHOD, ElementType.CONSTRUCTOR, ElementType.TYPE, ElementType.LOCAL_VARIABLE})
+  @CodeExtractor
+  public @interface Core {
+  }
+  ```
+There is already a predefined annotation `Centrifuge` annotated with `@CodeExtractor`.
 
-3. Build your project and all the code snippets will be extracted into a file located in `{module}/build/generated/source/apt/{productFlavor}/{buildType}/centrifuge/Centrifuge`. There may be several items in the file, each item is in the form of
+3. Use your custom annotations or `Centrifuge` to annotate `class`, `constructor` or `method` you are concerned about. When these annotations are used to annotate `class`, all the static blocks within that `class` will be extracted. And when they are used to annotate `constructor` or `method`, the method body will be extracted.
+
+3. Build your project and all the code snippets will be extracted into a file for each annotation located in `{module}/build/generated/source/apt/{productFlavor}/{buildType}/centrifuge/{annotation name}`. There may be several items in each file, each item is in the form of
 
   ```
   // {identifier}
@@ -22,7 +33,7 @@ Launch performance is one of the key issues in developing an Android app. If sev
   
   When the item is associated with a `class`, the `identifier` is the full name of the class including package name. When the item is associated with a `method`, the `identifier` is in the form of *{full name of the class}#{method name}({parameters})*. When the item is associated with a `constructor`, the `identifier` is in the form of *{full name of the class}#&lt;init&gt;({parameters})*. 
   
-4. Include the generated file in version control by adding these lines to your project's `.gitignore`:
+4. Include the generated files in version control by adding these lines to your project's `.gitignore`:
 
   ```
   /app/build/*
@@ -39,6 +50,20 @@ Launch performance is one of the key issues in developing an Android app. If sev
   
 #Example
 
+Define an annotation:
+
+```
+@Documented
+@Target({ElementType.METHOD, ElementType.CONSTRUCTOR, ElementType.TYPE, ElementType.LOCAL_VARIABLE})
+@CodeExtractor
+public @interface Core {
+}
+```
+
+Use annotations
+
+SampleActivity.java:
+
 ```
 @Centrifuge
 public class SampleActivity extends AppCompatActivity {
@@ -49,22 +74,30 @@ public class SampleActivity extends AppCompatActivity {
 
     @Override
     @Centrifuge
+    @Core
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sample);
     }
 
-    static class TestClass {
+}
+```
 
-        @Centrifuge
-        public TestClass() {
-            Log.i("Test", "This is the constructor of TestClass.");
-        }
+Test.java:
+
+```
+public class Test {
+
+    @Core
+    private void test() {
+        Log.i("test", "just a test");
     }
 }
 ```
 
-The generated file is:
+Two files will be generated after building the project.
+
+Centrifuge:
 
 ```
 // com.shhp.centrifuge.SampleActivity
@@ -74,19 +107,31 @@ static {
 
 
 
-// com.shhp.centrifuge.SampleActivity.TestClass#<init>()
-{
-    Log.i("Test", "This is the constructor of TestClass.");
-}
-
 // com.shhp.centrifuge.SampleActivity#onCreate(android.os.Bundle savedInstanceState,)
 {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_sample);
 }
 
+```
+
+Core:
 
 ```
+// com.shhp.centrifuge.SampleActivity#onCreate(android.os.Bundle savedInstanceState,)
+{
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_sample);
+}
+
+// com.shhp.centrifuge.Test#test()
+{
+    Log.i("test", "just a test");
+}
+
+
+```
+
 
 #License
 
