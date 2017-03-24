@@ -20,11 +20,11 @@ Launch performance is one of the key issues in developing an Android app. If sev
   public @interface Core {
   }
   ```
-There is already a predefined annotation `Centrifuge` annotated with `@CodeExtractor`.
+  There is already a predefined annotation `Centrifuge` annotated with `@CodeExtractor`.
 
 3. Use your custom annotations or `Centrifuge` to annotate `class`, `constructor` or `method` you are concerned about. When these annotations are used to annotate `class`, all the static blocks within that `class` will be extracted. And when they are used to annotate `constructor` or `method`, the method body will be extracted.
 
-3. Build your project and all the code snippets will be extracted into a file for each annotation located in `{module}/build/generated/source/apt/{productFlavor}/{buildType}/centrifuge/{annotation name}`. There may be several items in each file, each item is in the form of
+4. Build your project and all the code snippets will be extracted into a file for each annotation located in `{module}/build/generated/source/apt/{productFlavor}/{buildType}/centrifuge/{annotation name}`. There may be several items in each file, each item is in the form of
 
   ```
   // {identifier}
@@ -33,7 +33,7 @@ There is already a predefined annotation `Centrifuge` annotated with `@CodeExtra
   
   When the item is associated with a `class`, the `identifier` is the full name of the class including package name. When the item is associated with a `method`, the `identifier` is in the form of *{full name of the class}#{method name}({parameters})*. When the item is associated with a `constructor`, the `identifier` is in the form of *{full name of the class}#&lt;init&gt;({parameters})*. 
   
-4. Include the generated files in version control by adding these lines to your project's `.gitignore`:
+5. Include the generated files in version control by adding these lines to your project's `.gitignore`:
 
   ```
   /app/build/*
