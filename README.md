@@ -8,7 +8,7 @@ Launch performance is one of the key issues in developing an Android app. If sev
 
   ```
   compile 'com.shhp.centrifuge:centrifuge-annotation:2.0.2'
-  apt 'com.shhp.centrifuge:centrifuge-annotation-processor:2.0.2'
+  annotationProcessor 'com.shhp.centrifuge:centrifuge-annotation-processor:2.0.2'
   ```
   
 2. Use the annotation `CodeExtractor` to annotate your custom annotations. e.g.

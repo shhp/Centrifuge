@@ -15,6 +15,7 @@ public class SampleActivity extends AppCompatActivity {
 
     @Override
     @Centrifuge
+    @Core
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sample);

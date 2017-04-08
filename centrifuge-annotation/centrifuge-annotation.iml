@@ -27,5 +27,9 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" exported="" name="centrifuge-annotation.centrifuge-annotation-2.0.1" level="project" />
+    <orderEntry type="library" exported="" name="centrifuge-annotation.centrifuge-annotation-2.0.1" level="project" />
+    <orderEntry type="library" exported="" name="centrifuge-annotation.centrifuge-annotation-2.0.1" level="project" />
+    <orderEntry type="library" exported="" name="centrifuge-annotation.centrifuge-annotation-2.0.1" level="project" />
   </component>
 </module>

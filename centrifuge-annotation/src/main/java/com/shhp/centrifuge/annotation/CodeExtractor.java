@@ -21,11 +21,10 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
 
 /**
- * Annotation used to indicate the associated elements can be extracted to a stand-alone file.
- *
+ * Annotations annotated with @CodeExtractor can be used for code extraction.
  */
+
 @Documented
-@Target({ElementType.METHOD, ElementType.CONSTRUCTOR, ElementType.TYPE, ElementType.LOCAL_VARIABLE})
-@CodeExtractor
-public @interface Centrifuge {
+@Target({ElementType.ANNOTATION_TYPE})
+public @interface CodeExtractor {
 }

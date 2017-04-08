@@ -17,11 +17,16 @@
 package com.shhp.centrifuge.annotation.processor;
 
 import com.shhp.centrifuge.annotation.Centrifuge;
+import com.shhp.centrifuge.annotation.CodeExtractor;
 import com.sun.source.util.Trees;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.lang.annotation.Annotation;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -44,12 +49,13 @@ import javax.tools.StandardLocation;
  * The annotation processor.
  */
 
-@SupportedAnnotationTypes("com.shhp.centrifuge.annotation.Centrifuge")
+@SupportedAnnotationTypes({"*"})
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 public class CentrifugeAnnotationProcessor extends AbstractProcessor {
 
-    private FileObject outputFile;
-    private Writer outputWriter;
+    private Map<String, FileObject> outputFiles = new HashMap<>();
+    private Map<String, Writer> outputWriters = new HashMap<>();
+    private Set<TypeElement> annotationsForExtraction = new HashSet<>();
     private Trees mTrees;
     private Messager mMessager;
 
@@ -61,30 +67,33 @@ public class CentrifugeAnnotationProcessor extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        BufferedWriter bufferedWriter = null;
         mMessager = processingEnv.getMessager();
-        for (TypeElement element : annotations) {
-            mMessager.printMessage(Diagnostic.Kind.NOTE, "annotation:"+element.getQualifiedName());
-        }
-        try {
-            if (outputFile == null) {
-                outputFile = processingEnv.getFiler().createResource(StandardLocation.SOURCE_OUTPUT, "centrifuge", "Centrifuge");
-                outputWriter = outputFile.openWriter();
+        for (TypeElement annotation : annotations) {
+            if (annotation.getAnnotation(CodeExtractor.class) != null) {
+                String annotationQualifiedName = String.valueOf(annotation.getQualifiedName());
+                mMessager.printMessage(Diagnostic.Kind.NOTE, "annotation:"+annotationQualifiedName);
+                try {
+                    if (!outputFiles.containsKey(annotationQualifiedName)) {
+                        annotationsForExtraction.add(annotation);
+
+                        FileObject fileObject = processingEnv.getFiler().createResource(StandardLocation.SOURCE_OUTPUT, "centrifuge", annotation.getSimpleName());
+                        outputFiles.put(annotationQualifiedName, fileObject);
+                        outputWriters.put(annotationQualifiedName, fileObject.openWriter());
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
-            mMessager.printMessage(Diagnostic.Kind.NOTE, "file location:"+outputFile.toUri());
-            bufferedWriter = new BufferedWriter(outputWriter);
-        } catch (IOException e) {
-            e.printStackTrace();
         }
 
-        StringBuilder stringBuilder = new StringBuilder();
-        for (Element element : roundEnv.getElementsAnnotatedWith(Centrifuge.class)) {
-            String identifier = "// " + getElementId(element);
-            stringBuilder.append(identifier).append("\n").append(getElementSourceCode(element)).append("\n\n");
-            processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, identifier);
-        }
-
-        if (bufferedWriter != null) {
+        for (TypeElement annotationType : annotationsForExtraction) {
+            StringBuilder stringBuilder = new StringBuilder();
+            for (Element element : roundEnv.getElementsAnnotatedWith(annotationType)) {
+                String identifier = "// " + getElementId(element);
+                stringBuilder.append(identifier).append("\n").append(getElementSourceCode(element)).append("\n\n");
+                processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, identifier);
+            }
+            BufferedWriter bufferedWriter = new BufferedWriter(outputWriters.get(String.valueOf(annotationType.getQualifiedName())));
             try {
                 bufferedWriter.append(stringBuilder.toString());
             } catch (IOException e) {
@@ -97,6 +106,7 @@ public class CentrifugeAnnotationProcessor extends AbstractProcessor {
                 }
             }
         }
+
         return true;
     }
 

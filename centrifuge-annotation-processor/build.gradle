@@ -2,7 +2,7 @@ apply plugin: 'java'
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.shhp.centrifuge:centrifuge-annotation:1.0.0'
+    compile 'com.shhp.centrifuge:centrifuge-annotation:2.0.2'
 }
 
 apply from: 'bintray.gradle'

@@ -27,10 +27,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" exported="" name="centrifuge-annotation-1.0.0" level="project" />
+    <orderEntry type="library" exported="" name="centrifuge-annotation-2.0.2" level="project" />
     <orderEntry type="library" exported="" name="tools" level="project" />
-    <orderEntry type="library" exported="" name="centrifuge-annotation-processor.centrifuge-annotation-processor-1.0.0" level="project" />
-    <orderEntry type="library" exported="" name="centrifuge-annotation-processor.centrifuge-annotation-processor-1.0.0-javadoc" level="project" />
-    <orderEntry type="library" exported="" name="centrifuge-annotation-processor.centrifuge-annotation-processor-1.0.0-sources" level="project" />
   </component>
 </module>
